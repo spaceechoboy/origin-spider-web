@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORIGIN Spider Web</title>
+<meta name="theme-color" content="#070a06">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spider Web">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+:root{--bg:#070a06;--s:#0c120b;--s2:#101a0e;--s3:#16220f;--bd:#243520;--g:#CCFF00;--g2:#E4FF66;--r2:#c43c3c;--r3:#FF6B6B;--pk:#7C8877;--ln:#3a4c34;--t:#E8F5E0;--t2:#9CA89A;--t3:#6B7569;--gr:#9FE870;--lime:#CCFF00;--ink:#110E08;--neon:#9FE870;--twbg:#070a06;--cardbg:#101a0e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{color:var(--t);font-family:'Pretendard','Noto Sans KR',-apple-system,sans-serif;letter-spacing:-0.01em;
+  background:radial-gradient(ellipse 1200px 600px at 50% -200px,rgba(159,232,112,.08),transparent),
+             radial-gradient(ellipse 800px 400px at 100% 50%,rgba(159,232,112,.03),transparent),var(--bg)}
+.app{max-width:1020px;margin:0 auto;padding:16px}
+.hdr{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:14px 20px;background:linear-gradient(135deg,var(--s),var(--s2));border:1px solid var(--bd);border-radius:14px;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:0;right:0;width:220px;height:100%;background:radial-gradient(circle at 80% 50%,rgba(159,232,112,0.10),transparent);pointer-events:none}
+.hdr img{width:48px;height:48px;border-radius:10px;border:1px solid rgba(159,232,112,.35);box-shadow:0 0 24px rgba(159,232,112,.25);background:#000}
+.hdr h1{font-size:1.2em;font-weight:900;color:var(--g)}.hdr p{color:var(--t2);font-size:0.72em}
+.tabs{display:flex;gap:3px;margin-bottom:10px;background:var(--s);border-radius:9px;padding:3px;border:1px solid var(--bd)}
+.tab{flex:1;padding:9px;text-align:center;border-radius:999px;cursor:pointer;font-weight:500;font-size:0.82em;color:var(--t2)}.tab.a{background:var(--lime);color:var(--ink);font-weight:800}.tab:hover:not(.a){background:var(--s2)}
+.tc{display:none}.tc.a{display:block}
+.nb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:8px 12px;background:var(--s);border:1px solid var(--bd);border-radius:9px;font-size:0.72em;color:var(--t2)}
+.nb b{color:var(--g)}
+.ir{display:flex;gap:7px;margin-bottom:10px}
+input[type=text]{flex:1;background:var(--s2);border:1px solid var(--bd);color:var(--t);padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:0.8em;outline:none}input:focus{border-color:var(--g)}
+.bt{background:var(--lime);color:var(--ink);border:none;padding:10px 22px;border-radius:999px;font-weight:800;font-size:0.82em;cursor:pointer;white-space:nowrap;box-shadow:0 0 24px rgba(204,255,0,.18)}.bt:disabled{opacity:0.4;cursor:not-allowed}
+.bs{background:var(--s2);border:1px solid var(--r3);color:var(--r3);padding:10px 14px;border-radius:999px;font-weight:600;cursor:pointer;display:none}
+.se{display:flex;gap:10px;align-items:center;margin-bottom:8px;font-size:0.72em;color:var(--t2)}
+.se input[type=number]{width:44px;background:var(--s2);border:1px solid var(--bd);color:var(--t);padding:2px 4px;border-radius:4px;text-align:center;font-family:'JetBrains Mono',monospace;outline:none}
+.ak{display:flex;gap:6px;align-items:center;margin-bottom:8px;font-size:0.72em}.ak label{color:var(--t2);white-space:nowrap}
+.ak input{flex:1;background:var(--s2);border:1px solid var(--bd);color:var(--t);padding:3px 8px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:0.88em;outline:none}
+.lg{background:var(--s);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:10px;max-height:150px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:0.62em;line-height:1.5;color:var(--t2)}
+.lg .o{color:var(--gr)}.lg .e{color:var(--r3)}.lg .w{color:var(--g2)}
+.cd{background:var(--s);border:1px solid var(--bd);border-radius:11px;padding:14px;margin-bottom:10px;position:relative;overflow:visible}
+.cd::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--lime),var(--neon),transparent)}
+.cd h3{font-size:0.82em;color:var(--g);margin-bottom:10px;font-weight:700}
+/* Upward chain */
+.cv{padding-left:14px}.cn{position:relative;padding:5px 0 5px 22px;border-left:2px solid var(--bd);margin-left:4px}
+.cn:last-child{border-left-color:transparent}.cn::before{content:'';position:absolute;left:-6px;top:9px;width:10px;height:10px;border-radius:50%;background:#6BB048;border:2px solid var(--bg)}
+.cn.tg::before{background:var(--lime);width:12px;height:12px;left:-7px;box-shadow:0 0 10px rgba(204,255,0,.5)}.cn.tp::before{background:var(--gr)}.cn.zz::before{background:#4d5a48}
+.cl{font-size:0.62em;color:var(--t2)}.unm{color:var(--g2);font-weight:700;font-size:1.15em}
+.adr{font-family:'JetBrains Mono',monospace;font-size:0.7em;word-break:break-all;cursor:pointer;color:var(--t)}.adr:hover{color:var(--g)}
+.mt{font-size:0.64em;margin-top:1px;font-family:'JetBrains Mono',monospace}.v{color:var(--g)}.d{color:var(--t3);font-size:0.92em}
+/* Toolbar */
+.tb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:0.72em;color:var(--t2)}
+.tbb{background:transparent;border:1px solid rgba(159,232,112,.35);color:var(--gr);padding:5px 12px;border-radius:999px;cursor:pointer;font-size:1em;font-family:inherit}
+.tbb:hover{border-color:var(--lime);color:var(--lime)}
+.tb input[type=range]{width:110px;accent-color:var(--g);vertical-align:middle}
+.lgd{margin-left:auto;font-size:0.94em}
+/* 인쇄 모드 — 저장(PNG/PDF) 시 자동 적용: 별명+직급만 + 메모 칸 */
+.tz.pmode .nd{min-width:96px;max-width:220px;padding:10px 12px}
+.tz.pmode .nd .nf,.tz.pmode .tg2,.tz.pmode .hd-btn,.tz.pmode .nd .lv{display:none}
+.tz.pmode .nd.hasnm .na{display:none}
+.tz.pmode .nd .nm{font-size:1.55em;line-height:1.15}
+.tz.pmode .nd .bg{font-size:1.15em}
+.tz.pmode .nd .bg .u{font-size:0.7em}
+.tz.pmode .nd .na{font-size:0.8em}
+.tz.pmode li{padding:14px 3px 0}
+.tz.pmode ul{padding-top:14px}
+.tz.pmode .nd::after{content:'';display:block;height:64px;margin-top:7px;border:1px dashed rgba(128,136,120,.65);border-radius:6px;background:rgba(255,255,255,.05)}
+
+.ldst{padding:26px;text-align:center;color:var(--t2);font-size:0.78em;font-family:'JetBrains Mono',monospace}
+.wbn{background:rgba(232,201,103,0.08);border:1px solid var(--g);color:var(--g2);padding:8px 12px;border-radius:8px;font-size:0.72em;margin-bottom:10px}
+/* Fullscreen (CSS 오버레이 — 네이티브 API는 재렌더·prompt·팝업과 충돌) */
+.cd.fso{position:fixed;inset:0;z-index:900;margin:0;border-radius:0;padding:18px;background:var(--twbg);overflow:auto}
+.cd.fso .tw{max-height:none;height:calc(100vh - 128px)}
+/* 전체화면 컨트롤 스트립 — 사용자 배경색이 밝아도 항상 대비 보장 */
+.cd.fso h3{background:rgba(10,14,9,.92);display:inline-block;padding:6px 14px;border-radius:10px;border:1px solid var(--bd)}
+.cd.fso .tb,.cd.fso .nb{background:rgba(10,14,9,.92);border:1px solid var(--bd);border-radius:12px;padding:8px 12px}
+.cd.fso .wbn,.cd.fso .ldst{background:rgba(10,14,9,.92)}
+/* 사용자 색상 */
+.nb input[type=color]{width:28px;height:22px;border:1px solid var(--bd);border-radius:5px;background:none;padding:1px;cursor:pointer;vertical-align:middle}
+.nb input[type=number]{width:44px;background:var(--s2);border:1px solid var(--bd);color:var(--t);padding:2px 4px;border-radius:4px;text-align:center;font-family:'JetBrains Mono',monospace;outline:none}
+/* 직급 배지 */
+.rkb{display:inline-block;font-size:0.56em;padding:1px 6px;border-radius:4px;font-weight:700;margin:0 0 3px 4px;vertical-align:top}
+.cl .rkb{font-size:1em;margin:0 0 0 4px;vertical-align:baseline}
+body.uc .nd,body.uc .nd.on,body.uc .nd.off,body.uc .nd.root{background:var(--cardbg)}
+body.ucl .nd .na{color:#584a52}body.ucl .nd .na:hover{color:#7a5c10}
+body.ucl .nd .nm,body.ucl .nd.off .nm,body.ucl .nd.root .nm{color:#181218}
+body.ucl .nd .bg{color:#7a5c10}body.ucl .nd.off .bg{color:#9a8a93}
+body.ucl .nd .bg .u,body.ucl .nd .bg .u2{color:#77676f}
+body.ucl .nd .nf{color:#584a52}body.ucl .nd .nf .v{color:#7a5c10}body.ucl .nd .nf .d{color:#77676f}
+body.ucl .tg2{background:rgba(0,0,0,0.07);border-color:#b3a3ab;color:#7a5c10}
+body.ucl .hd-btn{color:#9a8a93}
+/* 직급색 카드(밝은 색) 자동 대비 */
+.nd.rkl .na{color:#3f3a2f}.nd.rkl .na:hover{color:#110E08}
+.nd.rkl .nm,.nd.rkl.off .nm,.nd.rkl.root .nm{color:#110E08}
+.nd.rkl .bg{color:#1c4d00;text-shadow:none}
+.nd.rkl .bg .u,.nd.rkl .bg .u2{color:#4a4438}
+.nd.rkl .nf{color:#3f3a2f}.nd.rkl .nf .v{color:#1c4d00}.nd.rkl .nf .d{color:#4a4438}
+.nd.rkl .tg2{background:rgba(0,0,0,.15);border-color:rgba(0,0,0,.35);color:#110E08}
+.nd.rkl .hd-btn{color:rgba(17,14,8,.65)}
+.nd.rkl .lv{background:rgba(0,0,0,.3);color:#fff}
+/* Hide (사이드 지갑) */
+.hd-btn{position:absolute;top:3px;right:5px;font-size:0.62em;color:var(--t3);cursor:pointer;padding:1px 5px;border-radius:4px;line-height:1.2}
+.hd-btn:hover{color:var(--r3);background:var(--s3)}
+.nd{position:relative}
+.nd.ghost{opacity:0.45;border-style:dotted}
+.nd.ghost .hd-btn{color:var(--gr);font-size:0.6em;border:1px solid var(--gr)}
+/* Mind-map org chart */
+.tw{overflow:auto;max-height:72vh;border:1px solid var(--bd);border-radius:10px;background:var(--twbg);cursor:grab;user-select:none}
+.tw.g{cursor:grabbing}
+.tz{width:max-content;padding:20px 24px;margin:0 auto;font-size:var(--ufs,12pt)}
+.tz ul{display:flex;list-style:none;margin:0;padding:16px 0 0;position:relative}
+.tz ul.hid{display:none}
+.tz li{display:flex;flex-direction:column;align-items:center;position:relative;padding:16px 5px 0}
+.tz li::before,.tz li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid var(--ln);width:50%;height:16px}
+.tz li::after{right:auto;left:50%;border-left:2px solid var(--ln)}
+.tz li:only-child::before,.tz li:only-child::after{display:none}
+.tz li:only-child{padding-top:0}
+.tz li:first-child::before,.tz li:last-child::after{border:0 none}
+.tz li:last-child::before{border-right:2px solid var(--ln);border-radius:0 8px 0 0}
+.tz li:first-child::after{border-radius:8px 0 0 0}
+.tz li>ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--ln);height:16px}
+.tz>ul{padding-top:0}
+/* Nodes */
+.nd{background:var(--s2);border:2px solid var(--bd);border-radius:10px;padding:8px 12px;text-align:center;min-width:140px;max-width:230px}
+.nd.on{border-color:rgba(159,232,112,.6);background:linear-gradient(180deg,rgba(159,232,112,.10),rgba(159,232,112,.02)),var(--cardbg)}
+.nd.off{border:2px dashed #4d5a48;background:linear-gradient(rgba(159,232,112,.02),rgba(159,232,112,.02)),var(--cardbg)}
+.nd.root{border-color:var(--lime);background:linear-gradient(180deg,rgba(204,255,0,0.10),rgba(204,255,0,0.02)),var(--cardbg);box-shadow:0 0 28px rgba(204,255,0,.12);max-width:none;padding:12px 18px}
+.nd .nm{font-weight:900;font-size:0.95em;color:#fff;line-height:1.25}
+.nd.off .nm{color:var(--pk)}.nd.root .nm{color:var(--g2);font-size:1.1em}
+.nd .na{font-family:'JetBrains Mono',monospace;font-size:0.68em;cursor:pointer;color:var(--t2);word-break:break-all;transition:color .15s}.nd .na:hover{color:var(--g)}
+.nd .bg{font-size:0.98em;font-weight:900;color:var(--lime);font-family:'JetBrains Mono',monospace;margin-top:3px;line-height:1.2;text-shadow:0 0 18px rgba(204,255,0,.25)}
+.nd.root .bg{font-size:1.25em}
+.nd .bg .u2{font-size:0.6em;color:var(--t3);font-weight:500}
+.nd .bg .u{font-size:0.62em;color:var(--t3);font-weight:500;display:block}
+.nd.off .bg{color:var(--t3)}
+.nd .nf{font-size:0.62em;color:var(--t2);margin-top:2px;font-family:'JetBrains Mono',monospace;line-height:1.4}
+.nd .nf .v{color:var(--g)}.nd .nf .d{color:var(--t3)}
+.nd .lv{display:inline-block;background:#1d2f16;color:var(--gr);font-size:0.56em;padding:1px 6px;border-radius:4px;font-weight:700;margin-bottom:3px}
+.nd.off .lv{background:transparent;border:1px dashed #4d5a48;color:var(--t3)}
+.tg2{display:inline-block;margin-top:5px;padding:2px 10px;font-size:0.62em;background:var(--s3);border:1px solid var(--bd);border-radius:5px;color:var(--g);cursor:pointer}
+.tg2:hover{border-color:var(--g)}
+/* Popup */
+.pop{position:fixed;background:var(--s3);border:1px solid var(--g);border-radius:8px;padding:4px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.6);display:none}
+.pop a,.pop span{display:block;padding:7px 14px;font-size:0.74em;color:var(--t);text-decoration:none;cursor:pointer;border-radius:5px;white-space:nowrap}
+.pop a:hover,.pop span:hover{background:var(--s);color:var(--g)}
+/* ===== 모바일 반응형 ===== */
+html,body{overflow-x:hidden}
+.tw{touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch}
+@media (max-width:640px){
+  .app{padding:10px}
+  .hdr{gap:10px;padding:12px 14px;flex-wrap:wrap}
+  .hdr img{width:40px;height:40px}
+  .hdr h1{font-size:1.02em}.hdr p{font-size:0.66em}
+  .tabs{position:sticky;top:0;z-index:50}
+  .tab{padding:12px 8px;font-size:0.9em}
+  .nb,.tb,.se,.ak,.ir{flex-wrap:wrap;gap:8px 10px}
+  .ir input[type=text]{min-width:0;flex:1 1 60%}
+  .bt,.bs{padding:12px 18px}
+  .tbb{padding:8px 12px;font-size:1.05em}      /* 터치 타깃 확대 */
+  .nb input[type=color]{width:34px;height:26px}
+  .nb input[type=number],.se input[type=number]{width:52px;padding:5px}
+  #snapSel{max-width:100%!important;flex:1 1 100%}
+  .tw{max-height:66vh}
+  .lg{max-height:110px}
+  .nd{max-width:220px}
+  .nd.root{max-width:none}
+  .lgd{margin-left:0;flex-basis:100%;order:9}
+  .pop a,.pop span{padding:11px 16px;font-size:0.86em}   /* 팝업 터치 */
+  /* 자산 분석 뷰 */
+  #anaView .hdr h1{font-size:0.95em}
+  #anaBody>div:first-child{flex-direction:column;align-items:flex-start!important}
+  #anaBody table{font-size:0.66em!important}
+  #anaBody svg{width:190px;height:190px}
+}
+@media (max-width:400px){
+  .hdr h1{font-size:0.92em}
+  .tab{font-size:0.82em;padding:11px 5px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <img src="data:image/png;base64,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" alt="ORIGIN">
+    <div><h1>ORIGIN Spider Web Tracker <span style="font-size:0.7em;color:var(--t3)">v7.16</span></h1><p>P+A 합산(양 체인 시가) · 마인드맵 조직도 · 별명 · 직급 · 숨김 · 스냅샷 · 전체화면 · 자산 분석 · PNG/PDF</p></div>
+  </div>
+  <div class="tabs"><div class="tab a" onclick="sw('up')">🔼 상향</div><div class="tab" onclick="sw('dn')">🕸️ 하향</div></div>
+  <div id="ctlHome"></div>
+  <div id="t-up" class="tc a">
+    <div class="se"><label>깊이:<input type="number" id="mU" value="30" min="1" max="100"/></label></div>
+    <div class="ir"><input type="text" id="wU" placeholder="0x..."/><button class="bt" id="bU" onclick="goUp()">추적</button><button class="bs" id="sU" onclick="X.u=true">■</button></div>
+    <div class="lg" id="lU"></div><div id="rU"></div></div>
+  <div id="t-dn" class="tc">
+    <div class="ak"><label>API Key:</label><input type="password" id="apiK" value="" placeholder="etherscan.io 무료 키 붙여넣기" autocomplete="off"/><button class="tbb" onclick="akTgl(this)" title="키 표시/숨김">👁</button><span style="color:var(--t3);white-space:nowrap">개인 무료 키 권장(etherscan.io) · 자동 저장</span></div>
+    <div class="se"><label>깊이:<input type="number" id="mD" value="3" min="1" max="5"/></label></div>
+    <div class="se"><label>📸 스냅샷:</label><select id="snapSel" style="flex:1;max-width:420px;background:var(--s2);border:1px solid var(--bd);color:var(--t);padding:3px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:0.9em;outline:none"></select>
+    <button class="tbb" onclick="snapLoad()">불러오기</button><button class="tbb" onclick="snapDel()">삭제</button></div>
+    <div class="nb" id="nbBar"><span>👤 별명 <b id="nmN">0</b>건</span>
+    <button class="tbb" onclick="nmExport()">📤 내보내기</button>
+    <button class="tbb" onclick="document.getElementById('nmF').click()">📥 가져오기</button>
+    <input type="file" id="nmF" accept="application/json,.json" style="display:none" onchange="nmImport(event)">
+    <span style="margin-left:6px">🎨 배경 <input type="color" id="cBg" value="#070a06"> 카드 <input type="color" id="cCard" value="#101a0e"></span>
+    <button class="tbb" onclick="clReset()">기본색</button>
+    <span>🔠 글씨 <input type="number" id="fsPt" min="8" max="24" value="12">pt</span>
+    <button class="tbb" onclick="rkPanelTgl()">🎖 직급색</button>
+    <span style="color:var(--t3)">주소 클릭 → ✏️ 별명 · 🎖 직급</span></div>
+  <div class="nb" id="rkPanel" style="display:none"><span>🎖 직급별 색상:</span>
+    <span>V0 <input type="color" data-rk="0"></span><span>V1 <input type="color" data-rk="1"></span>
+    <span>V2 <input type="color" data-rk="2"></span><span>V3 <input type="color" data-rk="3"></span>
+    <span>V4 <input type="color" data-rk="4"></span><span>V5 <input type="color" data-rk="5"></span>
+    <span>V6 <input type="color" data-rk="6"></span>
+    <button class="tbb" onclick="rcReset()">기본값</button>
+    <span style="color:var(--t3)">직급 카드는 테두리+배지가 이 색으로</span></div>
+    <div class="ir"><input type="text" id="wD" placeholder="0x..."/><button class="bt" id="bD" onclick="goDn()">조회</button><button class="bs" id="sD" onclick="X.d=true">■</button></div>
+    <div class="lg" id="lD"></div><div id="rD"></div></div>
+</div>
+<div class="pop" id="pop"><a id="pS" href="#" target="_blank">🔗 온체인 확인</a><span id="pN">✏️ 별명 지정</span><span id="pR">🎖 직급 설정</span><span id="pT">🕸️ 이 지갑 기준 조직도 (새 창)</span><span id="pA">📊 자산 분석 (새 창)</span><span id="pC">📋 주소 복사</span></div>
+<div class="pop" id="rpop"></div>
+<script>
+const P='0x6757165973042541EBdEC47b73283397b5Afd90E',SL='0x99a57E6C8558BC6689f894e068733ADf83C19725',STK='0x1964Ca90474b11FFD08af387b110ba6C96251Bfc',VH='0x0309ca717d6989676194b88fd06029a88ceefee6',IS='0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
+const RP=['https://polygon-bor-rpc.publicnode.com','https://polygon.drpc.org','https://polygon-rpc.com','https://1rpc.io/matic','https://polygon.llamarpc.com']; // 2026-07-11 실측: publicnode만 안정 — 최우선. 나머지는 수시 사망
+const DEF_KEY=''; // 내장 폴백 키 — 개인 키 입력 시 localStorage(swApiKey) 우선
+let ri=0,X={u:false,d:false},SR=null,SC=null,JT=null,JI=null,RI=null,LP=0,LPA=0;
+
+function sw(id){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('a',(id==='up'&&i===0)||(id==='dn'&&i===1)));document.getElementById('t-up').classList.toggle('a',id==='up');document.getElementById('t-dn').classList.toggle('a',id==='dn')}
+function L(t,m,c=''){const b=document.getElementById(t),d=document.createElement('div');d.className=c;d.textContent=m;b.appendChild(d);b.scrollTop=b.scrollHeight}
+function sh(a){return a?a.slice(0,6)+'…'+a.slice(-4):''}
+function enc(a){return ethers.zeroPadValue(a,32).slice(2)}
+function $(v){return LP>0?'$'+(v*LP).toFixed(2):''}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function run(w,on){const u=w==='u',b=document.getElementById(u?'bU':'bD'),s=document.getElementById(u?'sU':'sD');b.disabled=on;b.style.display=on?'none':'';s.style.display=on?'':'none';if(on)X[w]=false}
+function fT(u,o,ms){const ac=new AbortController();const t=setTimeout(()=>ac.abort(),ms||12000);return fetch(u,Object.assign({},o,{signal:ac.signal})).finally(()=>clearTimeout(t))}
+let RPQ=0;async function rpcGate(){while(RPQ>=4)await new Promise(s=>setTimeout(s,60));RPQ++}
+async function rpc(m,p){await rpcGate();try{
+  for(let i=0;i<RP.length;i++){const u=RP[(ri+i)%RP.length];try{const r=await fT(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:p})},6000);const j=await r.json();if(j.result!==undefined&&j.result!==null){ri=(ri+i)%RP.length;return j.result}}catch(e){}}
+  return null}finally{RPQ--}}
+async function C(to,data){return rpc('eth_call',[{to,data},'latest'])}
+
+// ===== Anubis (6714) — 스테이킹 현재가치 합산 (스펙: origin-summary·rescue-bot 검증 구현 추출, 2026-07-09) =====
+const ARP=['https://rpc.anubispace.org','https://rpc3.anubispace.org','https://rpc4.anubispace.org','https://rpc1.anubispace.org','https://rpc2.anubispace.org'];
+const A_SL='0x2243aE29F73137d678197b61B0621AE942845B8C'; // 진짜 Anubis sLGNS — balanceForGons는 반드시 여기에
+const A_FLEX='0xf7788F5A5CbBaFAc4120c63C79dcd9F1931c7824'; // instantStaking(flexible)
+const A_LONG=[['0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f',true],['0x88ea98af226Cd4402A3873400308a4D78784eCE6',true],['0x1E5FeeC473F7F445FC7F5FeEC0beABB2270b0b4E',false]]; // [LONG600,extra✓][LONG360,extra✓][quota360,extra✗]
+const A_PAIR='0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0'; // Anubis LGNS-DAI (token0=LGNS 9dec, token1=DAI 18dec — 레지스트리 검증)
+const CWA='0xF7a0cacDF0810609EE5618247C4121b799E41664'; // cobweb(커뮤니티 잔여 claimable)
+const IDO='0x5E6d77F8071642561c999E97c1022108b8D5DE57'; // idoLedger — ILO claimable gLGNS (18-dec! ÷1e18, ÷1e9 함정 이력)
+const A_DS='0x5584CDeb1369673C91C6aD7EBea0cE7cB630ce60'; // 제네시스360 할인 스테이킹(ILO 탭) — long 동일 ABI, 가치=bfg 단독(pending 가산 금지: 원금 해제분이라 이중계상, dApp 정합 실측)
+const P_LONG=[['0x8cA97F41d2C81AF050656e8AD0Cf543820a24504',true],['0x6652d0f0D7aEc5070804E55b7023d32B9Bbc4190',true],['0x25a4b842cB200E9148FF5a11BAbF80488c8d8b07',false]]; // Polygon [LONG600][LONG360_V2][QUOTA360]
+// ⚠ Multicall3(0xca11bde…)는 Anubis 6714에 미배포(eth_getCode='0x' 실측 2026-07-09 — dApp 번들 선언은 프런트값)
+//   → 기존 검증 도구들(origin-summary·rescue-bot)과 동일하게 개별 eth_call + 동시성 제한.
+let ria=0;
+async function rpcA(m,p){for(let i=0;i<ARP.length;i++){const u=ARP[(ria+i)%ARP.length];try{const r=await fT(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:p})},12000);const j=await r.json();if(j.result!==undefined&&j.result!==null){ria=(ria+i)%ARP.length;return j.result}}catch(e){}}return null}
+async function CA(to,data){return rpcA('eth_call',[{to,data},'latest'])}
+async function CA2(to,data){let r=await CA(to,data);if(r===null){await new Promise(s=>setTimeout(s,500));r=await CA(to,data)}return r}
+function u9(rd){if(!rd||rd.length<66)return 0;const v=Number(BigInt(rd.slice(0,66)))/1e9;return(v>=0&&v<1e12)?v:0}
+function u18(rd){if(!rd||rd.length<66)return 0;const v=Number(BigInt(rd.slice(0,66)))/1e18;return(v>=0&&v<1e15)?v:0}
+// 양 체인 시가 — P=DexScreener(Polygon), A=Anubis LGNS-DAI 페어 getReserves 실측
+async function fetchLPA(){try{const rd=await rpcA('eth_call',[{to:A_PAIR,data:'0x0902f1ac'},'latest']);
+  if(rd&&rd.length>=2+64*2){const h=rd.slice(2);
+    const p01=(Number(BigInt('0x'+h.slice(64,128)))/1e18)/((Number(BigInt('0x'+h.slice(0,64)))/1e9)||1);   // token0=LGNS 가정
+    const p10=(Number(BigInt('0x'+h.slice(0,64)))/1e18)/((Number(BigInt('0x'+h.slice(64,128)))/1e9)||1);  // 역방향
+    let p=p01; if(LP>0&&(p01/LP>20||LP/p01>20)&&(p10/LP<20&&LP/p10<20))p=p10; // 토큰 순서 자동 보정
+    if(p>0&&p<1e6){LPA=p;return}}}catch(e){}LPA=0}
+async function fetchPrices(){try{const r=await fT('https://api.dexscreener.com/latest/dex/tokens/0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01',null,8000);const j=await r.json();if(j.pairs?.length>0){const p=parseFloat(j.pairs[0].priceUsd||0);if(p>0)LP=p}}catch(e){}
+  await fetchLPA()}
+function usd2(p,a){if(LP<=0)return '';return '$'+((p||0)*LP+(a||0)*(LPA||LP)).toFixed(2)}
+async function mapL(items,fn,lim){const out=new Array(items.length);let i=0;
+  const run=async()=>{while(i<items.length){const j=i++;out[j]=await fn(items[j],j)}};
+  const w=[];for(let k=0;k<Math.min(lim,items.length);k++)w.push(run());await Promise.all(w);return out}
+async function getStkA(w){try{const pw=enc(w);
+  const [flex,liq,l600,l360,q,ds]=await Promise.all([
+    CA2(A_FLEX,'0xb79215d6'+pw).then(u9),
+    CA2(A_SL,'0x70a08231'+pw).then(u9),
+    readLongSum(CA,A_SL,A_LONG[0][0],true,w),
+    readLongSum(CA,A_SL,A_LONG[1][0],true,w),
+    readLongSum(CA,A_SL,A_LONG[2][0],false,w),
+    readLongSum(CA,A_SL,A_DS,false,w,true)]); // 제네시스360: bfg 단독
+  return flex+liq+l600.v+l360.v+q.v+ds.v}catch(e){return 0}}
+
+// ===== Hidden (사이드 지갑 숨김) =====
+let HD={},SHOWH=false;
+try{const p=JSON.parse(localStorage.getItem('swHidden')||'{}');if(p&&typeof p==='object'&&!Array.isArray(p))HD=p}catch(e){HD={}}
+function hdSave(){localStorage.setItem('swHidden',JSON.stringify(HD))}
+function hdSet(a,on){const k=a.toLowerCase();if(on)HD[k]=1;else delete HD[k];hdSave();if(treeData)rndDn()}
+function hdTgl(){SHOWH=!SHOWH;if(treeData)rndDn()}
+
+// ===== Names (별명) =====
+let NM={};try{const p=JSON.parse(localStorage.getItem('swNames')||'{}');if(p&&typeof p==='object'&&!Array.isArray(p))NM=p}catch(e){NM={}}
+function nmSave(){localStorage.setItem('swNames',JSON.stringify(NM))}
+function nameOf(a){return a?(NM[a.toLowerCase()]||''):''}
+function nmCount(){document.getElementById('nmN').textContent=Object.keys(NM).length}
+function setName(a){const cur=nameOf(a);const v=prompt('별명 (비우면 삭제)\n'+a,cur);if(v===null)return;
+  const k=a.toLowerCase();if(v.trim()==='')delete NM[k];else NM[k]=v.trim();
+  nmSave();nmCount();rrAll()}
+function nmExport(){const b=new Blob([JSON.stringify({names:NM,hidden:Object.keys(HD),ranks:RK},null,2)],{type:'application/json'});const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download='spiderweb-names.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),500)}
+function nmImport(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const j=JSON.parse(r.result);let n=0,nh=0,nr=0;
+    const names=(j&&(j.names||j.hidden||j.ranks))?(j.names||{}):j; // 신형 {names,hidden,ranks} + 구형 flat 모두 수용
+    for(const k in names){if(/^0x[0-9a-fA-F]{40}$/.test(k)&&typeof names[k]==='string'&&names[k].trim()){NM[k.toLowerCase()]=names[k].trim();n++}}
+    if(j&&Array.isArray(j.hidden)){for(const a2 of j.hidden){if(/^0x[0-9a-fA-F]{40}$/.test(a2)){HD[a2.toLowerCase()]=1;nh++}}hdSave()}
+    if(j&&j.ranks&&typeof j.ranks==='object'&&!Array.isArray(j.ranks)){for(const k in j.ranks){const v=Number(j.ranks[k]);
+      if(/^0x[0-9a-fA-F]{40}$/.test(k)&&v>=0&&v<=6){RK[k.toLowerCase()]=v;nr++}}rkSave()}
+    nmSave();nmCount();rrAll();alert(`별명 ${n}건${nh?' · 숨김 '+nh+'건':''}${nr?' · 직급 '+nr+'건':''} 가져옴`)}catch(e){alert('JSON 파싱 실패: '+e.message)}};
+  r.readAsText(f);ev.target.value=''}
+function rrAll(){if(upData)rndUp();if(treeData)rndDn()}
+
+// 컨트롤 바 도킹 — 조직도 카드가 있으면 그 안으로(전체화면에서도 동작), 없으면 하향 탭 정위치로
+function dockCtl(intoCard){const nb=document.getElementById('nbBar'),rk=document.getElementById('rkPanel');
+  if(!nb||!rk)return;
+  const card=document.getElementById('dnCard'),tw=document.getElementById('tw');
+  if(intoCard&&card&&tw){card.insertBefore(nb,tw);card.insertBefore(rk,tw)}
+  else{const home=document.getElementById('ctlHome')||document.getElementById('t-dn');
+    const snapRowBtn=document.querySelector('#t-dn .se:nth-of-type(2)');
+    if(snapRowBtn&&snapRowBtn.parentNode){snapRowBtn.after(rk);snapRowBtn.after(nb)}
+    else home.appendChild(nb),home.appendChild(rk)}}
+
+// ===== 트리 스냅샷 (조회 완료 시 자동 저장 · 재검색 없이 복원) =====
+let SNAPT=0; // 현재 표시 중인 트리의 스냅샷 기준시각 (0=라이브 조회)
+function snapList(){try{const p=JSON.parse(localStorage.getItem('swSnaps')||'[]');return Array.isArray(p)?p:[]}catch(e){return[]}}
+function snapSave(mx){if(!treeData)return;
+  let arr=snapList().filter(x=>x.a.toLowerCase()!==treeData.a.toLowerCase());
+  arr.unshift({a:treeData.a,t:Date.now(),mx:mx||parseInt(document.getElementById('mD').value)||3,lp:LP,lpa:LPA,n:cntN(treeData),tree:treeData});
+  while(arr.length>12)arr.pop();
+  for(;;){try{localStorage.setItem('swSnaps',JSON.stringify(arr));break}
+    catch(e){if(arr.length<=1){L('lD','⚠ 스냅샷 저장 실패 — 저장 공간 부족(트리가 너무 큼)','w');return}arr.pop()}}
+  snapSync();L('lD',`📸 스냅샷 자동 저장 (${nameOf(treeData.a)||sh(treeData.a)})`,'o')}
+function snapSync(){const sel=document.getElementById('snapSel');if(!sel)return;
+  const arr=snapList();
+  sel.innerHTML=arr.length?arr.map((x,i)=>`<option value="${i}">${esc(nameOf(x.a)||sh(x.a))} · ${x.n}노드 · 깊이${x.mx} · ${new Date(x.t).toLocaleString()}</option>`).join(''):'<option value="">(저장된 스냅샷 없음)</option>'}
+function snapLoad(){const sel=document.getElementById('snapSel');const x=snapList()[Number(sel.value)];
+  if(!x||!x.tree){alert('선택된 스냅샷이 없습니다');return}
+  sw('dn');treeData=x.tree;SNAPT=x.t;if(x.lp>0)LP=x.lp;if(x.lpa>0)LPA=x.lpa;
+  document.getElementById('wD').value=x.a;document.getElementById('mD').value=x.mx||3;
+  CO.clear();const total=cntN(treeData);
+  if(total>40){(function cw(n){if(n.dep>=1&&n.ch.length)CO.add(n.a.toLowerCase());n.ch.forEach(cw)})(treeData)}
+  dockCtl(false);document.getElementById('rD').innerHTML='';rndDn(true);
+  L('lD',`📸 스냅샷 표시 — ${new Date(x.t).toLocaleString()} 기준 (최신화하려면 조회)`,'w')}
+function snapDel(){const sel=document.getElementById('snapSel');const i=Number(sel.value);
+  const arr=snapList();if(!arr[i])return;
+  arr.splice(i,1);localStorage.setItem('swSnaps',JSON.stringify(arr));snapSync()}
+
+// 셀렉터·이벤트 상수 (2026-07 온체인 실측·확정 — invite 트리 컨트랙트 impl 0x784d5cdf).
+// 개인 지갑 프로브 대신 기지 상수 사용 → 공개 소스에 개인 주소 미포함·초기화 즉시.
+const SR_DEF='0xd21cacdf', // referrerOf(address)
+      SC_DEF='0xcf7aeae0', // directPushCount(address)
+      JT_DEF='0xd12045cbb824dccd3bf8edffc06c251eca57b57aa8af4b78ab2f2653007c808c', // Join 이벤트 topic0
+      JI_DEF=1, RI_DEF=2;  // topic 인덱스: JI=신규가입자, RI=추천인
+async function init(lt){if(SR&&JT)return true;L(lt,'🔧 초기화…');
+  await fetchPrices();
+  if(LP>0)L(lt,`  💰 P $${LP.toFixed(4)}${LPA>0?' · A $'+LPA.toFixed(4):' · A 시세 실패(P로 대체)'}`,LPA>0?'o':'w');
+  const slot=await rpc('eth_getStorageAt',[P,IS,'latest']);const impl=slot?ethers.getAddress('0x'+slot.slice(26)):P;
+  const code=await rpc('eth_getCode',[impl,'latest']);if(!code||code==='0x'){L(lt,'❌ 컨트랙트 코드 조회 실패 — RPC 무응답/차단 가능. 잠시 후 재시도','e');return false}
+  SR=SR_DEF;SC=SC_DEF;JT=JT_DEF;JI=JI_DEF;RI=RI_DEF;
+  L(lt,'  ✅ 준비 완료','o');
+  return true}
+
+async function C2(to,data){let r=await C(to,data);if(r===null){await new Promise(s=>setTimeout(s,600));r=await C(to,data)}return r}
+async function getRef(w){if(!SR)return null;try{const r=await C2(P,SR+enc(w));if(!r||r.length<66)return undefined;const a='0x'+r.slice(26,66);return a==='0x'+'0'.repeat(40)?null:ethers.getAddress(a)}catch(e){return undefined}}
+async function getStk(w){try{const r=await C2(VH,'0x5ac983f4'+enc(SL)+enc(STK)+enc(w));if(r?.length>=66){const v=Number(BigInt('0x'+r.slice(2,66)))/1e9;if(v>=0&&v<1e12)return v}}catch(e){}return 0}
+async function getTm(w){try{const r=await fT(`https://apiv2.ocros.io/api/v1/comm/queryStakingStatus?member=${w}`,null,10000);if(r.ok){const j=await r.json();return Number(j.teamStaking)||0}}catch(e){}return 0}
+async function getCnt(w){if(!SC)return 0;try{const r=await C2(P,SC+enc(w));return r?Number(BigInt('0x'+r.slice(2,66))):0}catch(e){return 0}}
+async function findKids(a){const ak=document.getElementById('apiK').value.trim()||DEF_KEY;if(!JT||RI===null)return[];
+  const pa='0x'+enc(a),tp=RI===1?`&topic1=${pa}`:`&topic2=${pa}`;
+  const u=`https://api.etherscan.io/v2/api?chainid=137&module=logs&action=getLogs&address=${P}&topic0=${JT}${tp}&fromBlock=0&toBlock=latest&apikey=${ak}`;
+  for(let t=0;t<3;t++){try{const r=await fT(u,null,15000);const j=await r.json();
+    if(j.status==='1'&&j.result){const k=[];for(const l of j.result){if(l.topics.length>JI){const c=ethers.getAddress('0x'+l.topics[JI].slice(26));if(!k.includes(c))k.push(c)}}return k}
+    if(j.status==='0'&&(j.message==='No records found'||(Array.isArray(j.result)&&j.result.length===0)))return[];
+    L('lD',`  ⚠ 로그 조회 재시도 ${t+1}/3 ${sh(a)} ${j.message||''}`,'w')}catch(e){L('lD',`  ⚠ 로그 조회 재시도 ${t+1}/3 ${sh(a)}`,'w')}
+    await new Promise(s=>setTimeout(s,400*(t+1)))}
+  L('lD',`  ❌ 하위 조회 3회 실패 ${sh(a)} — 이 가지 결과 불완전`,'e');return[]}
+
+// Popup
+document.addEventListener('click',()=>{document.getElementById('pop').style.display='none';document.getElementById('rpop').style.display='none'});
+function pop(e,addr){e.stopPropagation();const p=document.getElementById('pop');p.style.display='block';
+  document.getElementById('rpop').style.display='none';
+  p.style.left=Math.min(e.pageX,window.innerWidth-200)+'px';p.style.top=e.pageY+'px';
+  document.getElementById('pS').href=`https://polygonscan.com/address/${addr}`;
+  document.getElementById('pN').onclick=()=>{p.style.display='none';setName(addr)};
+  document.getElementById('pR').onclick=ev=>{ev.stopPropagation();p.style.display='none';rkPop(addr,p.style.left,p.style.top)};
+  document.getElementById('pT').onclick=()=>{p.style.display='none';openSub(addr)};
+  document.getElementById('pA').onclick=()=>{p.style.display='none';openAnalyze(addr)};
+  document.getElementById('pC').onclick=()=>{navigator.clipboard.writeText(addr);p.style.display='none'}}
+
+// ===== 직급 (V0~V6) + 직급별 색상 =====
+let RK={};try{const p=JSON.parse(localStorage.getItem('swRanks')||'{}');if(p&&typeof p==='object'&&!Array.isArray(p))RK=p}catch(e){RK={}}
+function rkSave(){localStorage.setItem('swRanks',JSON.stringify(RK))}
+const RC_DEF=['#8a8a8a','#3dba7a','#4aa3df','#b48ce0','#e8c967','#ef8b4e','#d4374e'];
+function rcOf(v){return (CL.rc&&CL.rc[v])||RC_DEF[v]}
+function rankOf(a){const v=RK[a.toLowerCase()];return (v===0||v)?Number(v):null}
+function setRank(a,v){const k=a.toLowerCase();if(v===null)delete RK[k];else RK[k]=v;rkSave();rrAll()}
+function rkBadge(rk,onCard){const c=rcOf(rk);
+  if(onCard)return `<span class="rkb" style="background:rgba(17,14,8,.5);color:#fff;border:1px solid rgba(255,255,255,.3)">V${rk}</span>`;
+  return `<span class="rkb" style="background:${c};color:${lum(c)>0.55?'#1a1418':'#fff'}">V${rk}</span>`}
+function rkPop(addr,left,top){const p=document.getElementById('rpop');const cur=rankOf(addr);
+  p.innerHTML=[0,1,2,3,4,5,6].map(v=>`<span onclick="setRank('${addr}',${v})" style="border-left:12px solid ${rcOf(v)}${cur===v?';background:var(--s)':''}">V${v}${cur===v?' ✓':''}</span>`).join('')
+    +`<span onclick="setRank('${addr}',null)" style="border-left:12px solid transparent">직급 해제</span>`;
+  p.style.left=left;p.style.top=top;p.style.display='block'}
+function rkPanelTgl(){const el=document.getElementById('rkPanel');el.style.display=el.style.display==='none'?'flex':'none'}
+function rcSync(){document.querySelectorAll('#rkPanel input[type=color]').forEach(i=>{i.value=rcOf(Number(i.dataset.rk))})}
+function rcReset(){delete CL.rc;clSave();rcSync();rrAll()}
+
+// ===== 사용자 색상 (배경·카드) =====
+let CL={};try{const p=JSON.parse(localStorage.getItem('swColors')||'{}');if(p&&typeof p==='object'&&!Array.isArray(p))CL=p}catch(e){CL={}}
+function clSave(){localStorage.setItem('swColors',JSON.stringify(CL))}
+function lum(hex){try{const h=hex.replace('#','');const r=parseInt(h.slice(0,2),16)/255,g=parseInt(h.slice(2,4),16)/255,b=parseInt(h.slice(4,6),16)/255;return 0.2126*r+0.7152*g+0.0722*b}catch(e){return 0}}
+function clApply(){const rs=document.documentElement.style,b=document.body;
+  if(CL.bg)rs.setProperty('--twbg',CL.bg);else rs.removeProperty('--twbg');
+  if(CL.card){rs.setProperty('--cardbg',CL.card);b.classList.add('uc');b.classList.toggle('ucl',lum(CL.card)>0.55)}
+  else{rs.removeProperty('--cardbg');b.classList.remove('uc');b.classList.remove('ucl')}
+  if(CL.fs)rs.setProperty('--ufs',CL.fs+'pt');else rs.removeProperty('--ufs');
+  const p1=document.getElementById('cBg'),p2=document.getElementById('cCard'),p3=document.getElementById('fsPt');
+  if(p1)p1.value=CL.bg||'#070a06';if(p2)p2.value=CL.card||'#101a0e';if(p3)p3.value=CL.fs||12;
+  rcSync()}
+function clReset(){const rc=CL.rc,fs=CL.fs;CL={};if(rc)CL.rc=rc;if(fs)CL.fs=fs;clSave();clApply()}
+
+// ===== 저장 (PNG / PDF / CSV) =====
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('라이브러리 로드 실패'));document.head.appendChild(s)})}
+function rootTag(){const nm=treeData?(nameOf(treeData.a)||treeData.a.slice(2,10)):'tree';
+  return nm.replace(/[^\w가-힣.-]/g,'')+'-'+new Date().toISOString().slice(0,10)}
+async function capTree(pm){const tz=document.getElementById('tz');if(!tz||!treeData)return null;
+  if(!window.html2canvas)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  const oldZ=Z;tz.style.zoom=1; // html2canvas는 CSS zoom과 충돌 — 캡처 동안 100%
+  if(pm)tz.classList.add('pmode'); // 인쇄 모드: 별명+직급만
+  try{const w=tz.offsetWidth,h=tz.offsetHeight;
+    const scale=Math.min(2,Math.max(0.2,15000/Math.max(w,h)));
+    return await html2canvas(tz,{backgroundColor:CL.bg||'#070a06',scale})}
+  finally{tz.style.zoom=oldZ;if(pm)tz.classList.remove('pmode')}}
+async function saveP(){if(!treeData){alert('먼저 조회하세요');return}
+  try{L('lD','💾 PNG 캡처 중… (별명+직급 인쇄 모드)');const c=await capTree(true);if(!c)return;
+    c.toBlob(bl=>{const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download='spiderweb-'+rootTag()+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)},'image/png');
+    L('lD','✅ PNG 저장','o')}catch(e){L('lD','❌ PNG 실패: '+e.message,'e')}}
+function pdfA4(c,name){ // A4 1장 맞춤 (여백 8mm·중앙)
+  const pdf=new window.jspdf.jsPDF({orientation:c.width>=c.height?'l':'p',unit:'mm',format:'a4'});
+  const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),mg=8;
+  const r=Math.min((pw-2*mg)/c.width,(ph-2*mg)/c.height);
+  const w=c.width*r,h=c.height*r;
+  pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',(pw-w)/2,(ph-h)/2,w,h);
+  pdf.save(name)}
+async function saveF(){if(!treeData){alert('먼저 조회하세요');return}
+  try{L('lD','💾 PDF 생성 중… (별명+직급 인쇄 모드·A4 맞춤)');
+    if(!window.jspdf)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    const c=await capTree(true);if(!c)return;
+    pdfA4(c,'spiderweb-'+rootTag()+'.pdf');L('lD','✅ PDF 저장 (A4)','o')}catch(e){L('lD','❌ PDF 실패: '+e.message,'e')}}
+
+// ===== 지갑 기준 계보도 새 창 =====
+function findNode(n,k){if(n.a.toLowerCase()===k)return n;for(const c of n.ch){const f=findNode(c,k);if(f)return f}return null}
+function openSub(addr){const k=addr.toLowerCase();
+  const sub=treeData?findNode(treeData,k):null;
+  if(sub){try{const cp=JSON.parse(JSON.stringify(sub));const base=cp.dep;
+    (function rb(n){n.dep-=base;n.ch.forEach(rb)})(cp);
+    localStorage.setItem('swHandoff',JSON.stringify({a:addr,t:Date.now(),tree:cp,lp:LP,lpa:LPA}))}catch(e){}}
+  window.open(location.href.split('?')[0].split('#')[0]+'?root='+addr,'_blank')}
+
+// ===== 자산 분석 (Origin Summary 이식) =====
+function baseName(nm){return String(nm||'').replace(/[\s-]*\d+$/,'').trim()}
+function openAnalyze(addr){const nm=nameOf(addr),base=nm?baseName(nm):'';
+  let wallets=[{a:addr,name:nm||''}];
+  const node=treeData?findNode(treeData,addr.toLowerCase()):null;
+  if(node&&base){const acc=[];
+    (function w(n){const nn=nameOf(n.a);if(nn&&baseName(nn)===base)acc.push({a:n.a,name:nn});n.ch.forEach(w)})(node);
+    if(!acc.some(x=>x.a.toLowerCase()===addr.toLowerCase()))acc.unshift({a:addr,name:nm||''});
+    if(acc.length)wallets=acc}
+  try{localStorage.setItem('swAnalyze',JSON.stringify({a:addr,base,t:Date.now(),wallets:wallets.slice(0,40)}))}catch(e){}
+  window.open(location.href.split('?')[0].split('#')[0]+'?analyze='+addr,'_blank')}
+
+// 상품별 정의 (도넛 색·라벨)
+const PRODUCTS=[
+ {k:'P_liq',label:'P 일반(sLGNS)',chain:'P',color:'#e8c967'},
+ {k:'P_600',label:'P LONG600',chain:'P',color:'#d4374e'},
+ {k:'P_360',label:'P LONG360',chain:'P',color:'#ef8b4e'},
+ {k:'P_q',label:'P QUOTA360',chain:'P',color:'#b48ce0'},
+ {k:'P_etc',label:'P 기타(워밍업 등)',chain:'P',color:'#8fae5c'},
+ {k:'A_flex',label:'A Flexible',chain:'A',color:'#3dba7a'},
+ {k:'A_liq',label:'A 일반(sLGNS)',chain:'A',color:'#9FE870'},
+ {k:'A_600',label:'A LONG600',chain:'A',color:'#4aa3df'},
+ {k:'A_360',label:'A LONG360',chain:'A',color:'#2e7fb0'},
+ {k:'A_q',label:'A quota360',chain:'A',color:'#7ec8e3'},
+ {k:'A_ds',label:'A 제네시스360(할인)',chain:'A',color:'#c6f76f'}];
+// 합계 미포함 참고 항목(조직도 수치와의 일치 보장): P_pe=만기해제+추가보상, A_comm=커뮤니티 잔여
+const REF_ROWS=[{k:'P_pe',label:'P 만기해제 대기+추가보상',chain:'P'},{k:'A_comm',label:'A 커뮤니티 잔여(claimable)',chain:'A'},{k:'A_ilo',label:'A ILO claimable',chain:'A',unit:'gLGNS',noUsd:true}];
+// 범용 장기 상품 합산 reader (양 체인 공용 셀렉터 — 검증 스펙)
+async function readLongSum(call,slAddr,ct,hasEx,w,noPend){const pw=enc(w);let ok=true;
+  const cc=async(to,d)=>{let r=await call(to,d);if(r===null){await new Promise(s=>setTimeout(s,500));r=await call(to,d)}return r};
+  const cr=await cc(ct,'0x98dc8dea'+pw);if(cr===null)return {v:0,bfg:0,pe:0,ok:false}; // 무음 0 금지 — count 실패는 실패로
+  if(cr.length<66)return {v:0,bfg:0,pe:0,ok:true};
+  let n=Number(BigInt(cr.slice(0,66)));if(!n||n>500)return {v:0,bfg:0,pe:0,ok:true};n=Math.min(n,80);
+  const idxs=[];for(let i=0;i<n;i++)idxs.push(i);
+  const stakes=await mapL(idxs,i=>cc(ct,'0x584b62a1'+pw+i.toString(16).padStart(64,'0')),3);
+  const act=[];stakes.forEach((rd,j)=>{if(rd===null){ok=false;return}if(rd.length<2+64*8)return;const hx=rd.slice(2);
+    const principal=Number(BigInt('0x'+hx.slice(0,64)))/1e9;const gons=hx.slice(64,128);
+    if(BigInt('0x'+hx.slice(64*7,64*8))!==1n||principal<=0||principal>=1e12)return;act.push({i:j,principal,gons})});
+  if(!act.length)return {v:0,bfg:0,pe:0,ok};
+  const vals=await mapL(act,async a=>{const idx=a.i.toString(16).padStart(64,'0');
+    const [bf,pp,ex]=await Promise.all([cc(slAddr,'0x7965d56d'+a.gons),noPend?Promise.resolve(null):cc(ct,'0xda709204'+pw+idx),hasEx?cc(ct,'0xb01d3563'+pw+idx):Promise.resolve(null)]);
+    if(bf===null||(!noPend&&pp===null))ok=false;
+    let b=u9(bf);if(!b)b=a.principal;return {b,pe:(noPend?0:u9(pp))+u9(ex)}},3);
+  let tb=0,tpe=0;for(const v of vals){tb+=v.b;tpe+=v.pe}
+  return {v:tb+tpe,bfg:tb,pe:tpe,ok}}
+// 지갑 1개의 양 체인 상품별 포지션
+async function fetchPos(w){const pw=enc(w);
+  const [vhRaw,P_liq,r600,r360,rq,A_flex,A_liq,a600,a360,aq,ads,A_comm,A_ilo]=await Promise.all([
+    C2(VH,'0x5ac983f4'+enc(SL)+enc(STK)+pw),
+    C2(SL,'0x70a08231'+pw).then(u9),
+    readLongSum(C,SL,P_LONG[0][0],true,w),
+    readLongSum(C,SL,P_LONG[1][0],true,w),
+    readLongSum(C,SL,P_LONG[2][0],false,w),
+    CA2(A_FLEX,'0xb79215d6'+pw).then(u9),
+    CA2(A_SL,'0x70a08231'+pw).then(u9),
+    readLongSum(CA,A_SL,A_LONG[0][0],true,w),
+    readLongSum(CA,A_SL,A_LONG[1][0],true,w),
+    readLongSum(CA,A_SL,A_LONG[2][0],false,w),
+    readLongSum(CA,A_SL,A_DS,false,w,true),
+    CA2(CWA,'0x402914f5'+pw).then(u9),
+    CA2(IDO,'0x631b3e51'+pw).then(u18)]);
+  const vh=u9(vhRaw);
+  // P 상품 행 = bfg 성분(조직도 P=VH와 동일 정의). 만기해제+추가보상(P_pe)은 합계 미포함 참고값.
+  const pos={P_liq,P_600:r600.bfg,P_360:r360.bfg,P_q:rq.bfg,P_etc:0,A_flex,A_liq,A_600:a600.v,A_360:a360.v,A_q:aq.v,A_ds:ads.v,
+    P_pe:(r600.pe+r360.pe+rq.pe),A_comm,A_ilo};
+  const pOk=r600.ok&&r360.ok&&rq.ok&&vhRaw!==null;
+  let note='';
+  if(!pOk&&vhRaw!==null){ // 분해 실패 → 조직도와 동일한 VH 종합치로 대체 (탭 간 일관성 보장)
+    pos.P_liq=0;pos.P_600=0;pos.P_360=0;pos.P_q=0;pos.P_etc=vh;pos.P_pe=0;
+    note='P 상품 분해 부분 실패 — VH 종합치로 대체(조직도와 동일)';}
+  else if(pOk){const sum=pos.P_liq+pos.P_600+pos.P_360+pos.P_q;
+    const resid=vh-sum;
+    if(resid>0.5)pos.P_etc=resid; // 워밍업 등 미분해 상품 (VH에 포함되는 성분)
+    else if(resid<-1)note='⚠ P bfg합('+sum.toFixed(2)+')>VH('+vh.toFixed(2)+') — 노드 상태 불일치 가능, 재조회 권장';}
+  else if(vhRaw===null)note='⚠ Polygon 조회 부분 실패 — 재조회 권장';
+  pos._note=note;pos._vh=vh;
+  return pos}
+function posUsd(pos){let u=0;for(const pr of PRODUCTS){const v=pos[pr.k]||0;u+=v*(pr.chain==='P'?LP:(LPA||LP))}return u}
+function posLgns(pos){let t=0;for(const pr of PRODUCTS)t+=pos[pr.k]||0;return t}
+function donutSvg(segs,c1,c2){const total=segs.reduce((s,x)=>s+x.v,0);let off=25,arcs='';
+  for(const g of segs){const f=g.v/(total||1)*100;
+    arcs+=`<circle r="70" cx="100" cy="100" fill="none" stroke="${g.color}" stroke-width="30" pathLength="100" stroke-dasharray="${f} ${100-f}" stroke-dashoffset="${off}"></circle>`;off-=f}
+  return `<svg viewBox="0 0 200 200" width="230" height="230">${arcs}
+  <text x="100" y="96" text-anchor="middle" fill="var(--g)" font-size="14" font-weight="bold" font-family="JetBrains Mono">${c1}</text>
+  <text x="100" y="114" text-anchor="middle" fill="var(--t2)" font-size="9">${c2}</text></svg>`}
+let ANA=null; // {wallets,pos[],base}
+async function capAna(){const el=document.getElementById('anaCard');if(!el)return null;
+  if(!window.html2canvas)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  return await html2canvas(el,{backgroundColor:'#070a06',scale:2})}
+function anaTag(){return ((ANA&&ANA.base)||'analysis').replace(/[^\w가-힣.-]/g,'')+'-'+new Date().toISOString().slice(0,10)}
+async function saveAnaP(){try{const c=await capAna();if(!c)return;
+  c.toBlob(bl=>{const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download='analysis-'+anaTag()+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)},'image/png')}catch(e){alert('PNG 실패: '+e.message)}}
+async function saveAnaF(){try{if(!window.jspdf)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const c=await capAna();if(!c)return;pdfA4(c,'analysis-'+anaTag()+'.pdf')}catch(e){alert('PDF 실패: '+e.message)}}
+async function runAnalyze(addr){
+  document.querySelector('.app').style.display='none';
+  let h=null;try{h=JSON.parse(localStorage.getItem('swAnalyze')||'0')}catch(e){}
+  let wallets=[{a:addr,name:nameOf(addr)||''}],base='';
+  if(h&&h.a&&h.a.toLowerCase()===addr.toLowerCase()&&Array.isArray(h.wallets)&&h.wallets.length){wallets=h.wallets;base=h.base||''}
+  const v=document.createElement('div');v.className='app';v.id='anaView';
+  v.innerHTML=`<div class="hdr"><div><h1>📊 자산 분석 — ${esc(base||sh(addr))} <span style="font-size:0.7em;color:var(--t3)">지갑 ${wallets.length}개</span></h1>
+    <p>동일인 판정 = 별명 접미 번호(예: 이름, 이름-1, 이름 2) · 온체인 상품별 실측 · 양 체인 시가 결산</p></div></div>
+    <div class="cd" id="anaCard"><div class="tb"><button class="tbb" onclick="saveAnaP()">🖼 PNG</button><button class="tbb" onclick="saveAnaF()">📄 PDF (A4)</button></div>
+    <div class="ldst" id="anaSt">⏳ 시세 조회 중…</div><div id="anaBody"></div></div>`;
+  document.body.appendChild(v);
+  const st=document.getElementById('anaSt');
+  await fetchPrices();
+  const pos=[];
+  for(let i=0;i<wallets.length;i++){const w=wallets[i];
+    st.textContent=`⏳ 포지션 조회 ${i+1}/${wallets.length} — ${w.name||sh(w.a)} (P 4상품 + A 6상품)`;
+    try{pos.push({w,p:await fetchPos(w.a)})}catch(e){pos.push({w,p:null,err:e.message})}}
+  ANA={wallets,pos,base};st.style.display='none';renderAna(base,addr)}
+function renderAna(base,addr){
+  const agg={};for(const pr of PRODUCTS)agg[pr.k]=0;
+  let totalUsd=0,totalL=0;
+  for(const x of ANA.pos){if(!x.p)continue;for(const pr of PRODUCTS)agg[pr.k]+=x.p[pr.k]||0;totalUsd+=posUsd(x.p);totalL+=posLgns(x.p)}
+  const segs=PRODUCTS.filter(pr=>agg[pr.k]>0.0001).map(pr=>({v:agg[pr.k]*(pr.chain==='P'?LP:(LPA||LP)),color:pr.color,label:pr.label,lgns:agg[pr.k]}));
+  let hh=`<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+    <div>${donutSvg(segs,'$'+totalUsd.toFixed(0),totalL.toFixed(1)+' LGNS')}</div>
+    <div style="font-size:0.72em;line-height:1.8">`;
+  for(const g of segs)hh+=`<div><span style="color:${g.color}">■</span> ${g.label} — <span class="v">${g.lgns.toFixed(2)}</span> <span class="d">$${g.v.toFixed(2)}</span></div>`;
+  hh+=`<div style="color:var(--t3);margin-top:6px">시가 P $${LP.toFixed(4)} · A $${(LPA||LP).toFixed(4)}${LPA?'':' (A 시세 실패→P 대체)'} · ${new Date().toLocaleString()}</div></div></div>`;
+  hh+=`<h3 style="margin-top:14px">지갑별 (클릭=상품 상세)</h3><div class="cv">`;
+  ANA.pos.forEach((x,i)=>{const u=x.p?posUsd(x.p):0,l=x.p?posLgns(x.p):0;
+    hh+=`<div class="cn" style="cursor:pointer" onclick="anaDetail(${i})"><div class="cl">${esc(x.w.name||'(별명 없음)')}</div>
+    <div class="adr">${x.w.a}</div>
+    <div class="mt"><span class="v">${l.toFixed(4)} LGNS</span> <span class="d">$${u.toFixed(2)}</span>${x.p&&(x.p.A_ilo||0)>0.0001?' <span style="color:var(--gr)">· ILO '+x.p.A_ilo.toFixed(2)+' gLGNS</span>':''}${x.err?' <span class="e" style="color:var(--r3)">조회 실패</span>':''}${x.p&&x.p._note?' <span style="color:var(--warn,#FFB84D)">'+esc(x.p._note)+'</span>':''}</div></div>`});
+  hh+=`</div><div id="anaDet"></div>`;
+  document.getElementById('anaBody').innerHTML=hh}
+function anaDetail(i){const x=ANA.pos[i];if(!x||!x.p)return;
+  let t=`<h3 style="margin-top:14px">🔎 ${esc(x.w.name||sh(x.w.a))} — 상품별 상세</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:0.72em;font-family:'JetBrains Mono',monospace">
+  <tr style="color:var(--t3);text-align:left"><th style="padding:4px">상품</th><th>체인</th><th style="text-align:right">수량(LGNS)</th><th style="text-align:right">USD</th></tr>`;
+  for(const pr of PRODUCTS){const v=x.p[pr.k]||0;if(v<=0.0001)continue;
+    t+=`<tr style="border-top:1px solid var(--bd)"><td style="padding:4px"><span style="color:${pr.color}">■</span> ${pr.label}</td><td>${pr.chain==='P'?'Polygon':'Anubis'}</td>
+    <td style="text-align:right" class="v">${v.toFixed(4)}</td><td style="text-align:right" class="d">$${(v*(pr.chain==='P'?LP:(LPA||LP))).toFixed(2)}</td></tr>`}
+  t+=`<tr style="border-top:2px solid var(--g);font-weight:bold"><td style="padding:4px">합계 (조직도 정의와 동일)</td><td></td>
+  <td style="text-align:right" class="v">${posLgns(x.p).toFixed(4)}</td><td style="text-align:right" class="v">$${posUsd(x.p).toFixed(2)}</td></tr>`;
+  for(const rr of REF_ROWS){const v=x.p[rr.k]||0;if(v<=0.0001)continue;
+    t+=`<tr style="border-top:1px dashed var(--bd);color:var(--t3)"><td style="padding:4px">└ ${rr.label} <span style="font-size:0.9em">(합계 미포함)</span></td><td>${rr.chain==='P'?'Polygon':'Anubis'}</td>
+    <td style="text-align:right">${v.toFixed(4)}${rr.unit?' '+rr.unit:''}</td><td style="text-align:right">${rr.noUsd?'환산 불가*':'$'+(v*(rr.chain==='P'?LP:(LPA||LP))).toFixed(2)}</td></tr>`}
+  if((x.p.A_ilo||0)>0.0001)t+=`<tr><td colspan="4" style="padding:4px;color:var(--t3);font-size:0.9em">* gLGNS는 AMM 유동성 극박(풀 보유 ~170개)이라 시세 환산이 무의미 — 수량만 표기</td></tr>`;
+  t+=`</table>`;
+  document.getElementById('anaDet').innerHTML=t}
+
+// ===== UPWARD =====
+let upData=null;
+
+async function goUp(){const raw=document.getElementById('wU').value.trim().replace(/[^\x20-\x7E]/g,'');let w;
+  try{w=ethers.getAddress(raw)}catch(e){L('lU','❌ 주소 형식 오류(0x+40자리, 체크섬) 또는 ethers 라이브러리 미로드','e');return}
+  run('u',true);upData=null;document.getElementById('lU').innerHTML='';document.getElementById('rU').innerHTML='';L('lU',`🔍 ${w}`);
+  if(!(await init('lU'))){L('lU','❌ 초기화 실패 — 위 로그 확인 후 재시도','e');run('u',false);return}
+  const mx=parseInt(document.getElementById('mU').value)||30;
+  const ch=[{address:w,depth:0}];let cur=w;const vis=new Set([w.toLowerCase()]);
+  for(let d=1;d<=mx;d++){if(X.u)break;const ref=await getRef(cur);
+    if(ref===undefined){L('lU','⚠ RPC 응답 실패 — 여기서 중단 (실제 최상위가 아닐 수 있음, 재조회 권장)','w');break}
+    if(!ref){ch[ch.length-1].top=1;break}
+    if(vis.has(ref.toLowerCase()))break;vis.add(ref.toLowerCase());L('lU',`  [${d}] → ${nameOf(ref)||sh(ref)}`,'o');ch.push({address:ref,depth:d});cur=ref}
+  L('lU','━━ 잔액 (P+A) ━━');
+  for(const n of ch){if(X.u)break;const [s1,t1,a1]=await Promise.all([getStk(n.address),getTm(n.address),getStkA(n.address)]);
+    n.stk=s1;n.tm=t1;n.stkA=a1;
+    L('lU',`  ${nameOf(n.address)||sh(n.address)}: ${(s1+a1).toFixed(2)} (P ${s1.toFixed(2)}·A ${a1.toFixed(2)}) / 팀:${t1.toFixed(0)}`,'o')}
+  upData=ch;rndUp();run('u',false);L('lU',`✅ ${ch.length}단계`,'o')}
+
+function rndUp(){const ch=upData;if(!ch)return;
+  let h=`<div class="cd"><h3>🔗 초청 체인 (${ch.length}단계)</h3><div class="cv">`;
+  for(let i=0;i<ch.length;i++){const n=ch[i],isT=i===0,isTop=n.top||i===ch.length-1,nm=nameOf(n.address),stk=Number(n.stk)||0,tm=Number(n.tm)||0,stkA=Number(n.stkA)||0,tot=stk+stkA,rk=rankOf(n.address);
+    h+=`<div class="cn ${isT?'tg':isTop?'tp':(tot===0?'zz':'')}"><div class="cl">${isT?'🎯 조회 대상':n.depth+'단계 상위'}${isTop&&!isT?' (최상위)':''}${nm?' · <span class="unm">'+esc(nm)+'</span>':''}${rk!==null?rkBadge(rk):''}</div>
+    <div class="adr" onclick="pop(event,'${n.address}')">${n.address}</div>
+    <div class="mt"><span class="v">${tot.toFixed(4)} sLGNS</span> ${usd2(stk,stkA)?'<span class="d">'+usd2(stk,stkA)+'</span>':''}${stkA>0?' <span class="d">(P '+stk.toFixed(2)+' · A '+stkA.toFixed(2)+')</span>':''} · <span class="v">팀:${tm.toFixed(2)}</span> ${$(tm)?'<span class="d">'+$(tm)+'</span>':''}</div></div>`}
+  h+='</div></div>';document.getElementById('rU').innerHTML=h}
+
+// ===== DOWNWARD — mind-map org chart =====
+let treeData=null,Z=1;const CO=new Set(); // CO = collapsed addresses
+
+let LDN=0;
+async function goDn(){const raw=document.getElementById('wD').value.trim().replace(/[^\x20-\x7E]/g,'');let w;
+  try{w=ethers.getAddress(raw)}catch(e){L('lD','❌ 주소 형식 오류(0x+40자리, 체크섬) 또는 ethers 라이브러리 미로드','e');return}
+  run('d',true);treeData=null;CO.clear();LDN=0;FSO=false;document.body.style.overflow='';
+  dockCtl(false);
+  document.getElementById('lD').innerHTML='';L('lD',`🕸️ 전체 데이터 로드 시작…`);
+  document.getElementById('rD').innerHTML=`<div class="cd"><h3>🕸️ 하향 조직도</h3><div class="ldst" id="ldst">⏳ 초기화 중…</div></div>`;
+  if(!(await init('lD'))){L('lD','❌ 초기화 실패 — 위 로그 확인 후 재시도','e');document.getElementById('rD').innerHTML='';run('d',false);return}
+  const mx=parseInt(document.getElementById('mD').value)||3;
+  treeData=await bld(w,0,mx);
+  if(treeData.cnt>0&&treeData.ch.length===0)L('lD',`⚠ 직추 ${treeData.cnt}명인데 하위 발굴 0건 — Etherscan 키/네트워크 확인 후 재조회`,'w');
+  L('lD',`✅ 데이터 로드 완료 — 시각화 중`,'o');
+  const total=cntN(treeData);
+  if(total>40){(function cw(n){if(n.dep>=1&&n.ch.length)CO.add(n.a.toLowerCase());n.ch.forEach(cw)})(treeData);
+    L('lD',`  ℹ ${total}개 노드 — 1단계까지만 펼침 (노드의 ▼ 버튼으로 가지 펼치기)`,'w')}
+  SNAPT=0;rndDn(true);snapSave(mx);
+  run('d',false);L('lD','✅ 완료','o')}
+
+function cntN(n){let c=1;for(const k of n.ch)c+=cntN(k);return c}
+
+async function bld(addr,dep,mx){
+  const [stk,tm,cnt,stkA]=await Promise.all([getStk(addr),getTm(addr),getCnt(addr),getStkA(addr)]);
+  LDN++;const st=document.getElementById('ldst');if(st)st.textContent=`⏳ 데이터 로드 중… ${LDN}개 지갑 (${nameOf(addr)||sh(addr)})`;
+  const nd={a:addr,stk,tm,cnt,stkA,ch:[],dep};
+  if(dep>=mx||cnt===0)return nd;
+  L('lD',`${'  '.repeat(dep)}${nameOf(addr)||sh(addr)}: ${cnt}명`,'o');
+  const kids=await findKids(addr);
+  for(const k of kids){if(X.d)break;nd.ch.push(await bld(k,dep+1,mx))}
+  nd.ch.sort((a,b)=>(b.tm||b.stk)-(a.tm||a.stk));
+  return nd}
+
+function rndDn(fit){if(!treeData)return;
+  try{
+  const wbn=treeData.cnt>0&&!treeData.ch.length?`<div class="wbn">⚠ 이 지갑은 직추 ${treeData.cnt}명이 있으나 하위 발굴이 실패했습니다 — 로그의 ⚠/❌를 확인하고 다시 조회하세요.</div>`:'';
+  // 셸(카드·툴바·뷰포트)은 1회만 생성 — 재렌더 시 요소를 유지해야 전체화면·줌·스크롤이 보존됨
+  if(!document.getElementById('dnCard')){
+    document.getElementById('rD').innerHTML=`<div class="cd" id="dnCard"><h3>🕸️ 하향 조직도</h3><div id="wbnBox"></div>
+    <div class="tb"><label>🔍 <input type="range" id="zm" min="15" max="200" value="${Math.round(Z*100)}"></label><span id="zv">${Math.round(Z*100)}%</span>
+    <button class="tbb" onclick="fitW();centerRoot()">↔ 폭 맞춤</button>
+    <button class="tbb" onclick="expAll(true)">전체 펼치기</button>
+    <button class="tbb" onclick="expAll(false)">전체 접기</button>
+    <button class="tbb" id="hdB" onclick="hdTgl()"></button>
+    <button class="tbb" id="fsB" onclick="fsTgl()">⛶ 전체화면</button>
+    <button class="tbb" onclick="saveP()">🖼 PNG</button>
+    <button class="tbb" onclick="saveF()">📄 PDF</button>
+    <span class="lgd"><span style="color:var(--gr)">■</span> 활성 · <span style="color:#4d5a48">▢</span> 빈 슬롯 · 드래그=이동 · ⌘/Ctrl+휠=줌(전체화면은 휠만)</span></div>
+    <div class="tw" id="tw"><div class="tz" id="tz"></div></div></div>`;
+    const zm=document.getElementById('zm');
+    zm.oninput=()=>{Z=zm.value/100;const z2=document.getElementById('tz');if(z2)z2.style.zoom=Z;document.getElementById('zv').textContent=zm.value+'%'};
+    panInit();
+    if(FSO)document.getElementById('dnCard').classList.add('fso');
+    fsUpd();dockCtl(true)}
+  const snapNote=SNAPT?`<div class="wbn">📸 ${new Date(SNAPT).toLocaleString()} 기준 스냅샷 — 최신 데이터가 필요하면 [조회]를 누르세요.</div>`:'';
+  document.getElementById('wbnBox').innerHTML=snapNote+wbn;
+  const hb=document.getElementById('hdB');
+  hb.textContent=`👁 숨김 ${Object.keys(HD).length}${SHOWH?' · 관리중':''}`;
+  hb.style.borderColor=SHOWH?'var(--gr)':'';hb.style.color=SHOWH?'var(--gr)':'';
+  const tz=document.getElementById('tz');tz.innerHTML=`<ul>${liN(treeData,true)}</ul>`;tz.style.zoom=Z;
+  const zm=document.getElementById('zm');if(zm){zm.value=Math.round(Z*100);document.getElementById('zv').textContent=Math.round(Z*100)+'%'}
+  if(fit){const tw=document.getElementById('tw');if(tw&&tw.scrollWidth>tw.clientWidth)fitW();centerRoot()}
+  }catch(e){L('lD','❌ 렌더 오류: '+e.message,'e')}}
+
+function centerRoot(){const tw=document.getElementById('tw'),root=document.querySelector('#tz .nd.root');if(!tw||!root)return;
+  const r=root.getBoundingClientRect(),c=tw.getBoundingClientRect();
+  tw.scrollLeft+=(r.left+r.width/2)-(c.left+c.width/2);tw.scrollTop=0}
+
+function liN(n,isRoot){const k=n.a.toLowerCase(),nm=nameOf(n.a),hid=CO.has(k),gh=!!HD[k],rk=rankOf(n.a);
+  if(gh&&!SHOWH&&!isRoot)return '';
+  const stk=Number(n.stk)||0,tm=Number(n.tm)||0,stkA=Number(n.stkA)||0,tot=stk+stkA;
+  const vis=n.ch.filter(c=>SHOWH||!HD[c.a.toLowerCase()]);
+  const cls=(isRoot?'root':(tot>0?'on':'off'))+(gh?' ghost':'')+(rk!==null&&lum(rcOf(rk))>0.55?' rkl':'')+(nm?' hasnm':'');
+  let h=`<li><div class="nd ${cls}"${rk!==null?` style="background:${rcOf(rk)};border-color:${rcOf(rk)}"`:''}>`;
+  if(!isRoot)h+=gh?`<div class="hd-btn" onclick="hdSet('${n.a}',false)">복원</div>`
+                 :`<div class="hd-btn" title="이 지갑(하위 포함) 숨기기" onclick="hdSet('${n.a}',true)">−</div>`;
+  if(!isRoot)h+=`<div class="lv">${n.dep}단계</div>`;
+  if(rk!==null)h+=rkBadge(rk,true);
+  if(nm)h+=`<div class="nm">${esc(nm)}</div>`;
+  h+=`<div class="na" onclick="pop(event,'${n.a}')">${isRoot?n.a:sh(n.a)}</div>`;
+  h+=`<div class="bg">${tot.toFixed(4)} <span class="u2">sLGNS</span>${usd2(stk,stkA)?'<span class="u">'+usd2(stk,stkA)+'</span>':''}</div>`;
+  const inf=[];
+  if(stkA>0)inf.push(`<span class="d">P ${stk.toFixed(2)} · A ${stkA.toFixed(2)}</span>`);
+  if(tm>0)inf.push(`팀 <span class="v">${tm.toFixed(2)}</span>${$(tm)?' <span class="d">'+$(tm)+'</span>':''}`);
+  if(n.cnt>0)inf.push(`직추 ${n.cnt}명`);
+  if(inf.length)h+=`<div class="nf">${inf.join(' · ')}</div>`;
+  if(vis.length)h+=`<div class="tg2" data-a="${n.a}" data-n="${vis.length}" onclick="tgl(this)">${hid?'▼':'▲'} ${vis.length}명</div>`;
+  h+='</div>';
+  if(vis.length){h+=`<ul${hid?' class="hid"':''}>`;for(const c of vis)h+=liN(c,false);h+='</ul>'}
+  h+='</li>';return h}
+
+function tgl(b){const a=b.dataset.a.toLowerCase(),li=b.closest('li'),ul=li.querySelector(':scope > ul');if(!ul)return;
+  const tw=document.getElementById('tw'),bx=b.getBoundingClientRect().left;
+  const hid=ul.classList.toggle('hid');if(hid)CO.add(a);else CO.delete(a);
+  b.textContent=`${hid?'▼':'▲'} ${b.dataset.n}명`;
+  if(tw)tw.scrollLeft+=b.getBoundingClientRect().left-bx}
+
+function expAll(open){CO.clear();
+  if(!open&&treeData){(function w(n){if(n.ch.length){CO.add(n.a.toLowerCase());n.ch.forEach(w)}})(treeData);CO.delete(treeData.a.toLowerCase())}
+  rndDn(true)}
+
+function fitW(){const tw=document.getElementById('tw'),tz=document.getElementById('tz');if(!tw||!tz)return;
+  tz.style.zoom=1;let z=(tw.clientWidth-6)/tz.offsetWidth;z=Math.max(0.3,Math.min(1.5,z));
+  Z=z;tz.style.zoom=z;
+  const zm=document.getElementById('zm');if(zm){zm.value=Math.round(z*100);document.getElementById('zv').textContent=Math.round(z*100)+'%'}}
+
+// Fullscreen — CSS 오버레이 (네이티브 API는 재렌더 시 요소 파괴·prompt 대화상자·body 팝업과 충돌해 기각)
+let FSO=false;
+function fsTgl(){const el=document.getElementById('dnCard');if(!el)return;
+  FSO=!FSO;el.classList.toggle('fso',FSO);document.body.style.overflow=FSO?'hidden':'';fsUpd()}
+function fsUpd(){const b=document.getElementById('fsB');if(b)b.textContent=FSO?'✕ 닫기 (Esc)':'⛶ 전체화면'}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&FSO)fsTgl()});
+
+// Drag-pan + 휠 줌(커서 중심)
+let panD=null;
+function panInit(){const tw=document.getElementById('tw');if(!tw)return;
+  tw.addEventListener('mousedown',e=>{if(e.target.closest('.na,.tg2,.hd-btn,button,input,a,.adr'))return;
+    panD={tw,sx:e.clientX,sy:e.clientY,sl:tw.scrollLeft,st:tw.scrollTop};tw.classList.add('g');e.preventDefault()});
+  tw.addEventListener('wheel',e=>{
+    if(!FSO&&!e.ctrlKey&&!e.metaKey)return; // 일반 화면: ⌘/Ctrl+휠(트랙패드 핀치 포함)만 줌
+    e.preventDefault();
+    const rect=tw.getBoundingClientRect(),cx=e.clientX-rect.left,cy=e.clientY-rect.top;
+    const oldZ=Z;let nz=Math.min(2,Math.max(0.15,oldZ*Math.exp(-e.deltaY*0.0022)));
+    if(Math.abs(nz-oldZ)<0.0005)return;
+    const px=(tw.scrollLeft+cx)/oldZ,py=(tw.scrollTop+cy)/oldZ;
+    Z=nz;const tz=document.getElementById('tz');if(tz)tz.style.zoom=Z;
+    tw.scrollLeft=px*Z-cx;tw.scrollTop=py*Z-cy;
+    const zm=document.getElementById('zm');if(zm){zm.value=Math.round(Z*100);const zv=document.getElementById('zv');if(zv)zv.textContent=Math.round(Z*100)+'%'}
+  },{passive:false});
+  // 모바일: 두 손가락 핀치 줌 (한 손가락은 네이티브 스크롤=팬)
+  let pz=null;
+  tw.addEventListener('touchstart',e=>{if(e.touches.length===2){const a=e.touches[0],b=e.touches[1];
+    pz={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),z:Z,
+      cx:(a.clientX+b.clientX)/2-tw.getBoundingClientRect().left,cy:(a.clientY+b.clientY)/2-tw.getBoundingClientRect().top,
+      sl:tw.scrollLeft,st:tw.scrollTop}}},{passive:true});
+  tw.addEventListener('touchmove',e=>{if(pz&&e.touches.length===2){e.preventDefault();
+    const a=e.touches[0],b=e.touches[1],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+    const nz=Math.min(2,Math.max(0.15,pz.z*d/pz.d));const tz=document.getElementById('tz');if(!tz)return;
+    const px=(pz.sl+pz.cx)/pz.z,py=(pz.st+pz.cy)/pz.z;
+    Z=nz;tz.style.zoom=Z;tw.scrollLeft=px*Z-pz.cx;tw.scrollTop=py*Z-pz.cy;
+    const zm=document.getElementById('zm');if(zm){zm.value=Math.round(Z*100);const zv=document.getElementById('zv');if(zv)zv.textContent=Math.round(Z*100)+'%'}}},{passive:false});
+  tw.addEventListener('touchend',e=>{if(e.touches.length<2)pz=null},{passive:true})}
+window.addEventListener('mousemove',e=>{if(!panD)return;panD.tw.scrollLeft=panD.sl-(e.clientX-panD.sx);panD.tw.scrollTop=panD.st-(e.clientY-panD.sy)});
+window.addEventListener('mouseup',()=>{if(panD){panD.tw.classList.remove('g');panD=null}});
+
+if(typeof ethers==='undefined'){const m='❌ ethers 라이브러리(cdnjs) 로드 실패 — 인터넷 연결/차단 프로그램 확인 후 새로고침하세요';L('lU',m,'e');L('lD',m,'e')}
+window.addEventListener('error',e=>{try{const m='❌ 스크립트 오류: '+(e.message||e.type);L('lD',m,'e');L('lU',m,'e')}catch(_){}});
+window.addEventListener('unhandledrejection',e=>{try{const m='❌ 비동기 오류: '+(e.reason&&e.reason.message||e.reason);L('lD',m,'e');L('lU',m,'e');run('u',false);run('d',false)}catch(_){}});
+nmCount();
+document.getElementById('wU').addEventListener('keydown',e=>{if(e.key==='Enter')goUp()});
+document.getElementById('wD').addEventListener('keydown',e=>{if(e.key==='Enter')goDn()});
+function akTgl(b){const i=document.getElementById('apiK');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'👁':'🙈'}
+(function(){const i=document.getElementById('apiK');const sv=localStorage.getItem('swApiKey');if(sv)i.value=sv;
+  i.addEventListener('change',()=>{const v=i.value.trim();
+    if(v&&v!==DEF_KEY)localStorage.setItem('swApiKey',v);else localStorage.removeItem('swApiKey')})})();
+document.getElementById('cBg').addEventListener('input',e=>{CL.bg=e.target.value;clSave();clApply()});
+document.getElementById('cCard').addEventListener('input',e=>{CL.card=e.target.value;clSave();clApply()});
+document.getElementById('fsPt').addEventListener('input',e=>{const v=Math.max(8,Math.min(24,Number(e.target.value)||12));CL.fs=v;clSave();clApply()});
+document.querySelectorAll('#rkPanel input[type=color]').forEach(i=>i.addEventListener('input',e=>{
+  CL.rc=CL.rc||{};CL.rc[e.target.dataset.rk]=e.target.value;clSave();rrAll()}));
+clApply();
+snapSync();
+dockCtl(false);
+// ?root=<주소> — 다른 창에서 "이 지갑 기준 계보도"로 열림
+(function(){try{const ana=new URLSearchParams(location.search).get('analyze');
+  if(ana){runAnalyze(ana);return}}catch(e){}
+  try{const root=new URLSearchParams(location.search).get('root');if(!root)return;
+  sw('dn');document.getElementById('wD').value=root;
+  let h=null;try{h=JSON.parse(localStorage.getItem('swHandoff')||'0')}catch(e){}
+  if(h&&h.a&&h.a.toLowerCase()===root.toLowerCase()&&h.tree){
+    treeData=h.tree;SNAPT=h.t||0;if(h.lp>0)LP=h.lp;if(h.lpa>0)LPA=h.lpa;
+    L('lD',`📋 부모 창에서 가져온 데이터 (${new Date(h.t).toLocaleTimeString()} 기준) — 최신화하려면 조회`,'w');
+    const total=cntN(treeData);
+    if(total>40){(function cw(n){if(n.dep>=1&&n.ch.length)CO.add(n.a.toLowerCase());n.ch.forEach(cw)})(treeData)}
+    rndDn(true)}
+  else L('lD','ℹ 주소가 입력되어 있습니다 — [조회]를 누르세요','w')}catch(e){}})();
+</script>
+</body>
+</html>
